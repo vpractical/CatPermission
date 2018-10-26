@@ -1,5 +1,6 @@
 # CatPermission
-android权限封装库
+android权限封装库   
+https://jitpack.io/
 ---
 ## 1.project的gradle文件中
 ```
