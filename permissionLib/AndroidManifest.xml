@@ -1,0 +1,13 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.y.permissionlib" >
+
+    <application>
+        <activity android:name=".PermissionAskToSettingActivity"
+            android:exported="false"
+            android:label=""
+            android:theme="@style/CatPermission.Transparent"
+            />
+
+    </application>
+
+</manifest>
