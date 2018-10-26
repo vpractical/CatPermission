@@ -100,7 +100,7 @@ public class PermissionCat {
             }
         }
 
-        if (!denied.isEmpty() && instance.mHelper.noAsk(activity, permissions)) {
+        if (!denied.isEmpty() && instance.mHelper.noAsk(activity, denied)) {
             //有权限被拒绝并不再询问
             instance.showAskSetting(activity, permissions);
         } else {
@@ -184,10 +184,10 @@ public class PermissionCat {
         LLog.e("有权限被不再询问，弹出去设置询问");
         AppSettingDialog.Builder builder = new AppSettingDialog.Builder(activity);
         builder
-                .title("去设置")
+                .title("权限申请")
                 .content(reason == null ? "应用需要该权限" : reason)
-                .cancelStr("取消.")
-                .confirmStr("去设置.")
+                .cancelStr("取消")
+                .confirmStr("去设置")
                 .build()
                 .show();
 
@@ -195,7 +195,6 @@ public class PermissionCat {
 
     /**
      * 设置页面退后回调
-     *
      * @param activity
      */
     protected void onActivityResult(Activity activity) {

@@ -48,7 +48,7 @@ public class MainActivity extends BaseActivity {
             tv.append("持有相机权限");
         }else{
             LLog.e("1没有权限，开始申请");
-            PermissionCat.request(mActivity,"想拍照",PERMISSION_CAMERA);
+            PermissionCat.request("想拍照",mActivity,PERMISSION_CAMERA);
         }
     }
 
@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity {
             tv.append("持有通讯录、位置权限");
         }else{
             LLog.e("2没有权限，开始申请");
-            PermissionCat.request(mActivity,"想要权限",perms);
+            PermissionCat.request("想要权限",mActivity,perms);
         }
     }
 

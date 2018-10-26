@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 
+import java.util.List;
+
 public class PermissionHelper {
     private static final PermissionHelper ourInstance = new PermissionHelper();
 
@@ -52,7 +54,7 @@ public class PermissionHelper {
      * @param perms
      * @return
      */
-    protected boolean noAsk(Activity activity,String... perms){
+    protected boolean noAsk(Activity activity,List<String> perms){
         for (String perm:perms) {
             if(!ActivityCompat.shouldShowRequestPermissionRationale(activity,perm)){
                 return true;

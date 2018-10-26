@@ -15,26 +15,29 @@ public class PermissionAskToSettingActivity extends AppCompatActivity {
     private AlertDialog dialog;
     private static final int APP_SETTINGS_RC = 201;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
         show();
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == APP_SETTINGS_RC){
-            AppSettingDialog.getInstance().onActivityResult();
-            if(dialog != null && dialog.isShowing()){
-                dialog.dismiss();
+        if (requestCode == APP_SETTINGS_RC) {
+            if (AppSettingDialog.getInstance() == null) {
+                //权限界面，取消授予的时候，app被杀死，所以对象为空
+                return;
             }
+            AppSettingDialog.getInstance().onActivityResult();
             finish();
         }
     }
 
-    private void show(){
+    private void show() {
         Intent intent = getIntent();
         String titleStr = intent.getStringExtra("titleStr");
         String reasonStr = intent.getStringExtra("reasonStr");
@@ -46,10 +49,12 @@ public class PermissionAskToSettingActivity extends AppCompatActivity {
                 .setMessage(reasonStr)
                 .setPositiveButton(confirmStr, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        startActivityForResult(
-                                new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                        .setData(Uri.fromParts("package", context.getPackageName(), null)),
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        if (dialog != null && dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                        startActivityForResult(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                        .setData(Uri.fromParts("package", context.getPackageName(),null)),
                                 APP_SETTINGS_RC);
                     }
                 })
@@ -62,5 +67,11 @@ public class PermissionAskToSettingActivity extends AppCompatActivity {
                 })
                 .create();
         dialog.show();
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                finish();
+            }
+        });
     }
 }
