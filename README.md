@@ -14,8 +14,5 @@ https://jitpack.io/
 
 ## 2.module的gradle中
 ```
-	dependencies {
-	        implementation 'com.github.vpractical:CatPermission:Tag'
-	}
 
 ```
