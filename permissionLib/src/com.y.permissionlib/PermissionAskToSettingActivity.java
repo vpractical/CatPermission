@@ -13,7 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 public class PermissionAskToSettingActivity extends AppCompatActivity {
     private Context context;
     private AlertDialog dialog;
-    private static final int APP_SETTINGS_RC = 201;
+    private static final int REQUESTCODE_SETTING = 201;
 
 
     @Override
@@ -27,12 +27,18 @@ public class PermissionAskToSettingActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == APP_SETTINGS_RC) {
+        LLog.e("设置页回来a");
+        if (requestCode == REQUESTCODE_SETTING) {
+            LLog.e("设置页回来a");
             if (AppSettingDialog.getInstance() == null) {
                 //权限界面，取消授予的时候，app被杀死，所以对象为空
+                LLog.e("设置页回来a-AppSettingDialog.getInstance()是null");
                 return;
             }
             AppSettingDialog.getInstance().onActivityResult();
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+            }
             finish();
         }
     }
@@ -50,12 +56,9 @@ public class PermissionAskToSettingActivity extends AppCompatActivity {
                 .setPositiveButton(confirmStr, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
-                        if (dialog != null && dialog.isShowing()) {
-                            dialog.dismiss();
-                        }
                         startActivityForResult(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                                         .setData(Uri.fromParts("package", context.getPackageName(),null)),
-                                APP_SETTINGS_RC);
+                                REQUESTCODE_SETTING);
                     }
                 })
                 .setNegativeButton(cancelStr, new DialogInterface.OnClickListener() {
