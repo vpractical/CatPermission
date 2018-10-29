@@ -32,7 +32,7 @@ public class PermissionCat {
 
     private static final PermissionCat instance = new PermissionCat();
 
-    public static PermissionCat getInstance() {
+    protected static PermissionCat getInstance() {
         return instance;
     }
 
