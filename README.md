@@ -1,6 +1,5 @@
 # CatPermission
 android权限封装库   
-https://jitpack.io/
 [![](https://jitpack.io/v/vpractical/CatPermission.svg)](https://jitpack.io/#vpractical/CatPermission)
 
 ---
