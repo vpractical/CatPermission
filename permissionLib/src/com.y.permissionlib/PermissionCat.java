@@ -91,7 +91,6 @@ public class PermissionCat {
      */
     public static void onRequestPermissionsResult(Object object, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(!instance.objectName.equals(object.getClass().getName())) return;
-        LLog.e("申请/禁止权限后的回调");
         List<String> granted = new ArrayList<>();
         List<String> denied = new ArrayList<>();
 
@@ -113,8 +112,6 @@ public class PermissionCat {
     }
 
     private void setPermissionResult(Object object,String[] permissions, List<String> granted, List<String> denied) {
-        LLog.e("权限申请/设置后的结果分发，成功、失败、回调注解方法");
-
         if (!granted.isEmpty() && mPermissionCallback != null) {
             //授予回调
             mPermissionCallback.onGranted(permissions, granted);
@@ -137,7 +134,6 @@ public class PermissionCat {
      * @param permissions
      */
     private void reflectMethod(Object object,String[] permissions) {
-        LLog.e("回调注解方法");
         Class clz = object.getClass();
         Method[] methods = clz.getDeclaredMethods();
 
@@ -156,9 +152,9 @@ public class PermissionCat {
                 if (Arrays.asList(permissions).contains(permCat.value())) {
                     //方法必须是返回void
 
-                    if (!"void".equals(m.getReturnType().getName())) {
-                        throw new RuntimeException("method must return void");
-                    }
+//                    if (!"void".equals(m.getReturnType().getName())) {
+//                        throw new RuntimeException("method must return void");
+//                    }
 
                     if (m.isAccessible()) {
                         //如果方法是私有，设置为可以访问，否则无法反射访问
@@ -183,7 +179,6 @@ public class PermissionCat {
      */
     private void showAskSetting(Object object, String... perms) {
         askPerms = perms;
-        LLog.e("有权限被不再询问，弹出去设置询问");
         AppSettingDialog.Builder builder = new AppSettingDialog.Builder(object);
         builder
                 .title("权限申请")
@@ -200,7 +195,6 @@ public class PermissionCat {
      * @param object
      */
     protected void onActivityResult(Object object) {
-        LLog.e("从设置页面回来的回调");
         List<String> granted = new ArrayList<>();
         List<String> denied = new ArrayList<>();
 

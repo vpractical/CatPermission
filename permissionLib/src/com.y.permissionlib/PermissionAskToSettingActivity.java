@@ -8,11 +8,10 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class PermissionAskToSettingActivity extends AppCompatActivity {
+public class PermissionAskToSettingActivity extends Activity {
     private Activity activity;
     private AlertDialog dialog;
     private static final int REQUEST_CODE_SETTING = 201;
@@ -35,12 +34,9 @@ public class PermissionAskToSettingActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        LLog.e("设置页回来a");
         if (requestCode == REQUEST_CODE_SETTING) {
-            LLog.e("设置页回来b");
             if(AppSettingDialog.getInstance() != null){
                 //权限界面，取消授予的时候，app被杀死，所以对象为空
-                LLog.e("设置页回来c-AppSettingDialog.getInstance()");
                 AppSettingDialog.getInstance().onActivityResult();
             }
             if (dialog != null && dialog.isShowing()) {

@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.y.catpermission.base.BaseActivity;
-import com.y.permissionlib.LLog;
 import com.y.permissionlib.PermCat;
 import com.y.permissionlib.PermissionCat;
 
@@ -28,7 +27,8 @@ public class MainActivity extends BaseActivity {
         findViewById(R.id.btn1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btn1();
+                boolean b = btn1();
+                LLog.e("---- = " + b);
             }
         });
         findViewById(R.id.btn2).setOnClickListener(new View.OnClickListener() {
@@ -41,7 +41,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @PermCat(PERMISSION_CAMERA)
-    public void btn1() {
+    public boolean btn1() {
         LLog.e("1执行按钮方法");
         if(PermissionCat.has(mActivity,PERMISSION_CAMERA)){
             LLog.e("1已经授予权限了");
@@ -50,6 +50,7 @@ public class MainActivity extends BaseActivity {
             LLog.e("1没有权限，开始申请");
             PermissionCat.request("想拍照",mActivity,null,PERMISSION_CAMERA);
         }
+        return true;
     }
 
     @PermCat(PERMISSION_LOCATION)
