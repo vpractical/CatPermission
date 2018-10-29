@@ -1,6 +1,6 @@
 package com.y.permissionlib;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,33 +9,40 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class PermissionAskToSettingActivity extends AppCompatActivity {
-    private Context context;
+    private Activity activity;
     private AlertDialog dialog;
-    private static final int REQUESTCODE_SETTING = 201;
+    private static final int REQUEST_CODE_SETTING = 201;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = this;
-        show();
+        activity = this;
 
+        Window window = getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = 1;
+        lp.height = 1;
+        window.setAttributes(lp);
+
+        show();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         LLog.e("设置页回来a");
-        if (requestCode == REQUESTCODE_SETTING) {
-            LLog.e("设置页回来a");
-            if (AppSettingDialog.getInstance() == null) {
+        if (requestCode == REQUEST_CODE_SETTING) {
+            LLog.e("设置页回来b");
+            if(AppSettingDialog.getInstance() != null){
                 //权限界面，取消授予的时候，app被杀死，所以对象为空
-                LLog.e("设置页回来a-AppSettingDialog.getInstance()是null");
-                return;
+                LLog.e("设置页回来c-AppSettingDialog.getInstance()");
+                AppSettingDialog.getInstance().onActivityResult();
             }
-            AppSettingDialog.getInstance().onActivityResult();
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
@@ -50,15 +57,17 @@ public class PermissionAskToSettingActivity extends AppCompatActivity {
         String confirmStr = intent.getStringExtra("confirmStr");
         String cancelStr = intent.getStringExtra("cancelStr");
 
-        dialog = new AlertDialog.Builder(context)
+        dialog = new AlertDialog.Builder(activity)
+                .setCancelable(false)
                 .setTitle(titleStr)
                 .setMessage(reasonStr)
                 .setPositiveButton(confirmStr, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
+                        dialog.dismiss();
                         startActivityForResult(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                        .setData(Uri.fromParts("package", context.getPackageName(),null)),
-                                REQUESTCODE_SETTING);
+                                        .setData(Uri.fromParts("package", activity.getPackageName(),null)),
+                                REQUEST_CODE_SETTING);
                     }
                 })
                 .setNegativeButton(cancelStr, new DialogInterface.OnClickListener() {
@@ -70,11 +79,5 @@ public class PermissionAskToSettingActivity extends AppCompatActivity {
                 })
                 .create();
         dialog.show();
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                finish();
-            }
-        });
     }
 }

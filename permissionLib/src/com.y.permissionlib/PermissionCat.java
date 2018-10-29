@@ -3,6 +3,7 @@ package com.y.permissionlib;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -13,9 +14,15 @@ import java.util.List;
 
 public class PermissionCat {
 
-    private String reason;//要求打开权限的原因
-    private PermissionCallback mPermissionCallback;
+    private String reason;
+    /**
+     * 在fragment中调用时
+     * 会回调fragment和activity的onRequestPermissionsResult方法
+     * 存个调用对象的标记
+     */
+    private String objectName;
 
+    private PermissionCallback mPermissionCallback;
     /**
      * 询问是否去设置时临时保存权限列表
      */
@@ -33,61 +40,57 @@ public class PermissionCat {
     }
 
 
-    public static boolean has(Activity activity, String... perms) {
-        if (activity == null) {
-            throw new NullPointerException("PermissionCat -> method params activity is null");
+    public static boolean has(Object object, String... perms) {
+        if (!checkValid(object)) {
+            throw new NullPointerException("PermissionCat -> object must be Activity or Fragment");
         }
-        return instance.mHelper.has(activity, perms);
-    }
-
-
-    public static void request(String reason, Activity activity, String... perms) {
-        if (activity == null) {
-            throw new NullPointerException("PermissionCat -> method params activity is null");
-        }
-        instance.reason = reason;
-        if (has(activity, perms)) {
-            instance.notifyResult(activity, perms);
-            return;
-        }
-
-        instance.mHelper.request(activity, perms);
+        return instance.mHelper.has(object, perms);
     }
 
     /**
      * 重载的请求授权方法，传入监听器时，不会回调注解方法
-     *
-     * @param reason
-     * @param activity
+     * @param reason 要求打开权限的原因
+     * @param object 上下文，fragment调用时需要传入fragment对象V
      * @param callback
      * @param perms
      */
-    public static void request(String reason, Activity activity, PermissionCallback callback, String... perms) {
+    public static void request(String reason, Object object, PermissionCallback callback, String... perms) {
+        if (!checkValid(object)) {
+            throw new NullPointerException("PermissionCat -> object must be Activity or Fragment");
+        }
+        instance.objectName = object.getClass().getName();
         instance.mPermissionCallback = callback;
-        request(reason, activity, perms);
+        instance.reason = reason;
+        if (has(object, perms)) {
+            instance.notifyResult(object, perms);
+            return;
+        }
+
+        instance.mHelper.request(object, perms);
     }
 
     /**
      * 权限都已经授予，就不用申请了，直接走结果通知
      */
-    public void notifyResult(Activity activity, String[] perms) {
-        int[] granteds = new int[perms.length];
+    public void notifyResult(Object object, String[] perms) {
+        int[] granted = new int[perms.length];
 
         for (int i = 0; i < perms.length; i++) {
-            granteds[i] = PackageManager.PERMISSION_GRANTED;
+            granted[i] = PackageManager.PERMISSION_GRANTED;
         }
 
-        onRequestPermissionsResult(activity, perms, granteds);
+        onRequestPermissionsResult(object, perms, granted);
     }
 
     /**
      * 授予/禁止权限后的回调
      *
-     * @param activity
+     * @param object
      * @param permissions
      * @param grantResults
      */
-    public static void onRequestPermissionsResult(Activity activity, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public static void onRequestPermissionsResult(Object object, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(!instance.objectName.equals(object.getClass().getName())) return;
         LLog.e("申请/禁止权限后的回调");
         List<String> granted = new ArrayList<>();
         List<String> denied = new ArrayList<>();
@@ -100,43 +103,42 @@ public class PermissionCat {
             }
         }
 
-        if (!denied.isEmpty() && instance.mHelper.noAsk(activity, denied)) {
+        if (!denied.isEmpty() && instance.mHelper.noAsk(object, denied)) {
             //有权限被拒绝并不再询问
-            instance.showAskSetting(activity, permissions);
+            instance.showAskSetting(object, permissions);
         } else {
-            instance.setPermissionResult(activity, permissions, granted, denied);
+            instance.setPermissionResult(object,permissions, granted, denied);
         }
 
     }
 
-    private void setPermissionResult(Activity activity, String[] permissions, List<String> granted, List<String> denied) {
+    private void setPermissionResult(Object object,String[] permissions, List<String> granted, List<String> denied) {
         LLog.e("权限申请/设置后的结果分发，成功、失败、回调注解方法");
 
         if (!granted.isEmpty() && mPermissionCallback != null) {
             //授予回调
-            mPermissionCallback.onGranted(activity, permissions, granted);
+            mPermissionCallback.onGranted(permissions, granted);
         }
 
         if (!denied.isEmpty() && mPermissionCallback != null) {
             //拒绝回调
-            mPermissionCallback.onDenied(activity, permissions, denied);
+            mPermissionCallback.onDenied(permissions, denied);
         }
 
         if (denied.isEmpty() && mPermissionCallback == null) {
             //全部授予，调用注解方法
-            reflectMethod(activity, permissions);
+            reflectMethod(object,permissions);
         }
     }
 
     /**
      * 反射调用注解的使用权限的方法
      *
-     * @param activity
      * @param permissions
      */
-    private void reflectMethod(Activity activity, String[] permissions) {
+    private void reflectMethod(Object object,String[] permissions) {
         LLog.e("回调注解方法");
-        Class<? extends Activity> clz = activity.getClass();
+        Class clz = object.getClass();
         Method[] methods = clz.getDeclaredMethods();
 
         for (Method m : methods) {
@@ -164,7 +166,7 @@ public class PermissionCat {
                     }
 
                     try {
-                        m.invoke(activity);
+                        m.invoke(object);
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
                     }
@@ -174,15 +176,15 @@ public class PermissionCat {
     }
 
     /**
-     * 权限被禁用
+     * 权限被禁用,弹出询问是否去设置权限的对话框
      *
-     * @param activity
+     * @param object
      * @param perms
      */
-    private void showAskSetting(Activity activity, String... perms) {
+    private void showAskSetting(Object object, String... perms) {
         askPerms = perms;
         LLog.e("有权限被不再询问，弹出去设置询问");
-        AppSettingDialog.Builder builder = new AppSettingDialog.Builder(activity);
+        AppSettingDialog.Builder builder = new AppSettingDialog.Builder(object);
         builder
                 .title("权限申请")
                 .content(reason == null ? "应用需要该权限" : reason)
@@ -190,14 +192,14 @@ public class PermissionCat {
                 .confirmStr("去设置")
                 .build()
                 .show();
-
     }
 
     /**
      * 设置页面退后回调
-     * @param activity
+     *
+     * @param object
      */
-    protected void onActivityResult(Activity activity) {
+    protected void onActivityResult(Object object) {
         LLog.e("从设置页面回来的回调");
         List<String> granted = new ArrayList<>();
         List<String> denied = new ArrayList<>();
@@ -206,14 +208,17 @@ public class PermissionCat {
         askPerms = null;
 
         for (String perm : perms) {
-            if (has(activity, perm)) {
+            if (has(object, perm)) {
                 granted.add(perm);
             } else {
                 denied.add(perm);
             }
         }
+        setPermissionResult(object,perms, granted, denied);
+    }
 
-        setPermissionResult(activity, perms, granted, denied);
+    private static boolean checkValid(Object object) {
+        return object instanceof Activity || object instanceof Fragment || object instanceof android.app.Fragment;
     }
 
 }

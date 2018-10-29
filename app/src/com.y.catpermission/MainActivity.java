@@ -15,9 +15,9 @@ public class MainActivity extends BaseActivity {
 
     TextView tv;
 
-    public static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
-    public static final String PERMISSION_CONTACTS_READ = Manifest.permission.READ_CONTACTS;
-    public static final String PERMISSION_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
+    private static final String PERMISSION_CONTACTS_READ = Manifest.permission.READ_CONTACTS;
+    private static final String PERMISSION_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class MainActivity extends BaseActivity {
             tv.append("持有相机权限");
         }else{
             LLog.e("1没有权限，开始申请");
-            PermissionCat.request("想拍照",mActivity,PERMISSION_CAMERA);
+            PermissionCat.request("想拍照",mActivity,null,PERMISSION_CAMERA);
         }
     }
 
@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity {
             tv.append("持有通讯录、位置权限");
         }else{
             LLog.e("2没有权限，开始申请");
-            PermissionCat.request("想要权限",mActivity,perms);
+            PermissionCat.request("想要权限",mActivity,null,perms);
         }
     }
 

@@ -9,13 +9,12 @@
     tools:context=".MainActivity">
 
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_margin="10dp"
-        android:text="返回"
-        android:onClick="btn1"
-        />
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:text="fragment中"
+    android:gravity="center"
+    />
 
 <fragment
     android:id="@+id/fragment_second"

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 
 import java.util.List;
 
@@ -19,16 +20,16 @@ public class PermissionHelper {
 
     /**
      * 判断是否允许了全部权限，没有全部允许就返回false
-     * @param activity
+     * @param object
      * @param perms
      * @return
      */
-    protected boolean has(Activity activity, String... perms){
+    protected boolean has(Object object, String... perms){
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
             return true;
         }
         for (String perm : perms) {
-            if(ActivityCompat.checkSelfPermission(activity,perm) != PackageManager.PERMISSION_GRANTED){
+            if(ActivityCompat.checkSelfPermission(target(object),perm) != PackageManager.PERMISSION_GRANTED){
                 return false;
             }
         }
@@ -36,30 +37,52 @@ public class PermissionHelper {
     }
 
     /**
-     *
-     * @param activity
+     * 区分activity、fragment中操作的回调
+     * @param object
      * @param perms
      */
-    protected void request(Activity activity,String... perms){
+    protected void request(Object object,String... perms){
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
             return;
         }
         int requestCode = (int) (Math.random() * 100);
-        ActivityCompat.requestPermissions(activity,perms,requestCode);
+        if (object instanceof Fragment) {
+            ((Fragment) object).requestPermissions(perms,requestCode);
+        } else if (object instanceof android.app.Fragment) {
+            ((android.app.Fragment) object).requestPermissions(perms,requestCode);
+        } else {
+            ((Activity) object).requestPermissions(perms,requestCode);
+        }
     }
 
     /**
      * 是否对某个权限选择拒绝并不再询问
-     * @param activity
+     * @param object
      * @param perms
      * @return
      */
-    protected boolean noAsk(Activity activity,List<String> perms){
+    protected boolean noAsk(Object object,List<String> perms){
         for (String perm:perms) {
-            if(!ActivityCompat.shouldShowRequestPermissionRationale(activity,perm)){
+            if(!ActivityCompat.shouldShowRequestPermissionRationale(target(object),perm)){
                 return true;
             }
         }
         return false;
+    }
+
+    protected Activity target(Object object) {
+        Activity activity;
+        if (object instanceof Fragment) {
+            activity = ((Fragment) object).getActivity();
+        } else if (object instanceof android.app.Fragment) {
+            activity = ((android.app.Fragment) object).getActivity();
+        } else {
+            activity = (Activity) object;
+        }
+
+        if (activity == null) {
+            throw new IllegalStateException("the result of type conversion is null");
+        }
+        return activity;
     }
 }

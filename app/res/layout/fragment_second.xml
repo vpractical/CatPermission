@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_margin="10dp"
-        android:text="相机权限"
+        android:text="相机权限,注解"
         />
 
     <Button
@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_margin="10dp"
-        android:text="定位权限，通讯录权限"
+        android:text="相机权限,监听器"
         />
 
     <TextView

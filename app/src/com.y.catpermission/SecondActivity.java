@@ -2,7 +2,6 @@ package com.y.catpermission;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.View;
 
 import com.y.catpermission.base.BaseActivity;
 
@@ -15,7 +14,4 @@ public class SecondActivity extends BaseActivity {
 
     }
 
-    public void btn1(View view){
-        finish();
-    }
 }

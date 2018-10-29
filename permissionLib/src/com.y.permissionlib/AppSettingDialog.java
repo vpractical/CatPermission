@@ -7,20 +7,20 @@ public class AppSettingDialog {
 
     private static AppSettingDialog instance = null;
 
-    public static AppSettingDialog getInstance(){
+    public static AppSettingDialog getInstance() {
         return instance;
     }
 
-    private Activity context;
+    private Object object;
     private String titleStr, reasonStr;
     private String cancelStr, confirmStr;
 
-    private AppSettingDialog(Activity context,
-                            String titleStr,
-                            String reasonStr,
-                            String cancelStr,
-                            String confirmStr) {
-        this.context = context;
+    private AppSettingDialog(Object object,
+                             String titleStr,
+                             String reasonStr,
+                             String cancelStr,
+                             String confirmStr) {
+        this.object = object;
         this.titleStr = titleStr;
         this.reasonStr = reasonStr;
         this.cancelStr = cancelStr;
@@ -28,30 +28,29 @@ public class AppSettingDialog {
     }
 
     public AppSettingDialog show() {
-
-        Intent intent = new Intent(context,PermissionAskToSettingActivity.class);
-        intent.putExtra("titleStr",titleStr);
-        intent.putExtra("reasonStr",reasonStr);
-        intent.putExtra("cancelStr",cancelStr);
-        intent.putExtra("confirmStr",confirmStr);
-        context.startActivity(intent);
-
+        Activity activity = PermissionHelper.getInstance().target(object);
+        Intent intent = new Intent(activity, PermissionAskToSettingActivity.class);
+        intent.putExtra("titleStr", titleStr);
+        intent.putExtra("reasonStr", reasonStr);
+        intent.putExtra("cancelStr", cancelStr);
+        intent.putExtra("confirmStr", confirmStr);
+        activity.startActivity(intent);
         return this;
     }
 
 
-    public void onActivityResult(){
-        PermissionCat.getInstance().onActivityResult(context);
+    public void onActivityResult() {
+        PermissionCat.getInstance().onActivityResult(object);
     }
 
     public static class Builder {
 
-        private Activity context;
+        private Object object;
         private String titleStr, reasonStr;
         private String cancelStr, confirmStr;
 
-        public Builder(Activity context) {
-            this.context = context;
+        public Builder(Object object) {
+            this.object = object;
         }
 
         public Builder title(String titleStr) {
@@ -75,7 +74,7 @@ public class AppSettingDialog {
         }
 
         public AppSettingDialog build() {
-            instance = new AppSettingDialog(context, titleStr, reasonStr, cancelStr, confirmStr);
+            instance = new AppSettingDialog(object, titleStr, reasonStr, cancelStr, confirmStr);
             return instance;
         }
 
