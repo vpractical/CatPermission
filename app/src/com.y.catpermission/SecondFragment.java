@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.y.catpermission.base.BaseFragment;
-import com.y.permissionlib.LLog;
 import com.y.permissionlib.PermCat;
 import com.y.permissionlib.PermissionCallback;
 import com.y.permissionlib.PermissionCat;
@@ -55,7 +54,7 @@ public class SecondFragment extends BaseFragment {
     @PermCat(value = PERMISSION_CAMERA)
     public void btn11() {
         if(PermissionCat.has(this,PERMISSION_CAMERA)){
-            LLog.e("do some thing");
+            //TODO
         }else{
             PermissionCat.request("拍照用",this,null,PERMISSION_CAMERA);
         }
@@ -63,12 +62,11 @@ public class SecondFragment extends BaseFragment {
 
     public void btn12() {
         if(PermissionCat.has(this,PERMISSION_CAMERA)){
-            LLog.e("do some thing");
+            //TODO
         }else{
             PermissionCat.request("拍照用", this, new PermissionCallback() {
                 @Override
                 public void onGranted(String[] permissions, List<String> granted) {
-                    LLog.e("PermissionCallback.onGranted()");
                     if(!granted.isEmpty() && PERMISSION_CAMERA.equals(granted.get(0))){
                         btn12();
                     }
@@ -76,7 +74,6 @@ public class SecondFragment extends BaseFragment {
 
                 @Override
                 public void onDenied(String[] permissions, List<String> denied) {
-                    LLog.e("PermissionCallback.onDenied()");
                 }
             }, PERMISSION_CAMERA);
         }
