@@ -16,7 +16,7 @@ android权限封装库
 #### 2.module的gradle中
 ```
 	dependencies {
-	        implementation 'com.github.vpractical:CatPermission:Tag'
+	        implementation 'com.github.vpractical:CatPermission:1.1.0'
 	}
 
 ```
