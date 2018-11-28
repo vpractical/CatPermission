@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,8 +48,9 @@ public class PermissionCat {
 
     /**
      * 重载的请求授权方法，传入监听器时，不会回调注解方法
-     * @param reason 要求打开权限的原因
-     * @param object 上下文，fragment调用时需要传入fragment对象V
+     *
+     * @param reason   要求打开权限的原因
+     * @param object   上下文，fragment调用时需要传入fragment对象V
      * @param callback
      * @param perms
      */
@@ -90,7 +90,7 @@ public class PermissionCat {
      * @param grantResults
      */
     public static void onRequestPermissionsResult(Object object, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(!instance.objectName.equals(object.getClass().getName())) return;
+        if (!instance.objectName.equals(object.getClass().getName())) return;
         List<String> granted = new ArrayList<>();
         List<String> denied = new ArrayList<>();
 
@@ -106,12 +106,11 @@ public class PermissionCat {
             //有权限被拒绝并不再询问
             instance.showAskSetting(object, permissions);
         } else {
-            instance.setPermissionResult(object,permissions, granted, denied);
+            instance.setPermissionResult(object, permissions, granted, denied);
         }
-
     }
 
-    private void setPermissionResult(Object object,String[] permissions, List<String> granted, List<String> denied) {
+    private void setPermissionResult(Object object, String[] permissions, List<String> granted, List<String> denied) {
         if (!granted.isEmpty() && mPermissionCallback != null) {
             //授予回调
             mPermissionCallback.onGranted(permissions, granted);
@@ -124,7 +123,7 @@ public class PermissionCat {
 
         if (denied.isEmpty() && mPermissionCallback == null) {
             //全部授予，调用注解方法
-            reflectMethod(object,permissions);
+            reflectMethod(object, permissions);
         }
     }
 
@@ -133,7 +132,7 @@ public class PermissionCat {
      *
      * @param permissions
      */
-    private void reflectMethod(Object object,String[] permissions) {
+    private void reflectMethod(Object object, String[] permissions) {
         Class clz = object.getClass();
         Method[] methods = clz.getDeclaredMethods();
 
@@ -163,7 +162,7 @@ public class PermissionCat {
 
                     try {
                         m.invoke(object);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -208,7 +207,7 @@ public class PermissionCat {
                 denied.add(perm);
             }
         }
-        setPermissionResult(object,perms, granted, denied);
+        setPermissionResult(object, perms, granted, denied);
     }
 
     private static boolean checkValid(Object object) {
