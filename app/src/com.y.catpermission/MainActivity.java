@@ -8,7 +8,10 @@ import android.widget.TextView;
 
 import com.y.catpermission.base.BaseActivity;
 import com.y.permissionlib.PermCat;
+import com.y.permissionlib.PermissionCallback;
 import com.y.permissionlib.PermissionCat;
+
+import java.util.List;
 
 public class MainActivity extends BaseActivity {
 
@@ -17,6 +20,7 @@ public class MainActivity extends BaseActivity {
     private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
     private static final String PERMISSION_CONTACTS_READ = Manifest.permission.READ_CONTACTS;
     private static final String PERMISSION_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,7 @@ public class MainActivity extends BaseActivity {
         return true;
     }
 
-    @PermCat(PERMISSION_LOCATION)
+//    @PermCat(PERMISSION_LOCATION)
     public void btn2() {
         LLog.e("2执行按钮方法");
         String[] perms = {PERMISSION_CONTACTS_READ,PERMISSION_LOCATION};
@@ -62,7 +66,17 @@ public class MainActivity extends BaseActivity {
             tv.append("持有通讯录、位置权限");
         }else{
             LLog.e("2没有权限，开始申请");
-            PermissionCat.request("想要权限",mActivity,null,perms);
+            PermissionCat.request("想要权限", mActivity, new PermissionCallback() {
+                @Override
+                public void onGranted(String[] permissions, List<String> granted) {
+                    LLog.e("授权 ： " + granted.size());
+                }
+
+                @Override
+                public void onDenied(String[] permissions, List<String> denied) {
+                    LLog.e("拒绝 ： " + denied.size());
+                }
+            }, perms);
         }
     }
 

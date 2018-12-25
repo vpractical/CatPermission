@@ -69,6 +69,9 @@ public class PermissionAskToSettingActivity extends Activity {
                 .setNegativeButton(cancelStr, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        if(AppSettingDialog.getInstance() != null){
+                            AppSettingDialog.getInstance().onActivityResult();
+                        }
                         dialog.dismiss();
                         finish();
                     }
